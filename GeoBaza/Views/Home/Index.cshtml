@@ -1,0 +1,30 @@
+﻿@model GeoBaza.Models.LayersModel
+@{
+
+    ViewBag.Title = "Home Page";
+    var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+    serializer.MaxJsonLength = Int32.MaxValue;
+}
+<style>
+
+    #map {
+        width: 800px;
+        height: 600px;
+    }
+
+    #info {
+        width: 800px;
+        height: 200px;
+    }
+</style>
+
+<link rel="stylesheet" href="~/Scripts/ol.css" type="text/css" />
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/ol.js"></script>
+<script src="~/Scripts/LoadMap.js"></script>
+
+
+<h1>Mapa</h1>
+
+<div id="map"></div>
+<div id="info"></div>
