@@ -3,6 +3,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 
@@ -10,26 +11,58 @@ namespace GeoBaza.Data
 {
     public class DataManipulation
     {
-       
-     
+       public string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=su; Database=NS_Locations;";
+
         List<string> roads = new List<string>();
 
-
-        public List<properties> GetLocations()
+        public List<string> getCategories()
         {
-            var locations = new List<properties>();
+            var categories = new List<string>();
             try
             {
-                string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=su; Database=NS_Locations;";
+                NpgsqlConnection connection = new NpgsqlConnection(connstring);  //biblioteka za rad sa Postgis bazama podataka
+            connection.Open();
+
+            NpgsqlCommand command = new NpgsqlCommand("SELECT  distinct(fclass) FROM public.lokacije order by fclass asc", connection);
+            NpgsqlDataReader dataReader = command.ExecuteReader();
+            for (int i = 0; dataReader.Read(); i++)
+            {
+                    categories.Add(dataReader[0].ToString());//.Replace("_", " "));
+            }
+
+                connection.Close();
+                return categories;
+            }
+            catch (Exception msg)
+            {
+
+                throw;
+            }
+
+        }
+
+        public List<features> GetLocations()
+        {
+            var locations = new List<features>();
+            try
+            {
+               
                 NpgsqlConnection connection = new NpgsqlConnection(connstring);  //biblioteka za rad sa Postgis bazama podataka
                 connection.Open();
-                NpgsqlCommand command = new NpgsqlCommand("SELECT  fclass,name, ST_AsText(geom) as geom FROM public.lokacije", connection);
-                
+                NpgsqlCommand command = new NpgsqlCommand("SELECT  fclass,name, ST_AsText(geom) as geom, gid, address FROM public.lokacije", connection);
+
+                var decimalStyle = CultureInfo.CurrentCulture;
+
                 NpgsqlDataReader dataReader = command.ExecuteReader();
                 for (int i = 0; dataReader.Read(); i++)
                 {
-                    locations.Add(new properties() { fclass = dataReader[0].ToString() , name = dataReader[1].ToString() ?? null, geometry =  new geometry() {type="point", coordinates = "["+ dataReader[2].ToString().Replace("MULTIPOINT(", "").Replace(")", "").Replace(" ",",") + "]" } });
-
+                    var coordinatesString = dataReader[2].ToString().Replace("MULTIPOINT(", "").Replace(")", "");
+                    var a = coordinatesString.Substring(0, coordinatesString.IndexOf(" "));
+                    var b = coordinatesString.Substring(coordinatesString.IndexOf(" ")+1);
+                    var arr = new decimal[] { Decimal.Parse(a,decimalStyle), Decimal.Parse(b,decimalStyle) };
+                    //var r = "[" +  + "]";
+                    locations.Add( new features() { type="Feature", properties = new properties() { fclass = dataReader[0].ToString() , name = dataReader[1].ToString() ?? null, gid = Convert.ToInt32(dataReader[3]), address = dataReader[4].ToString() ?? null }, geometry = new geometry() { type = "Point", coordinates = arr } } );
+                    
                 }
                 connection.Close();
                 return locations;
@@ -40,46 +73,53 @@ namespace GeoBaza.Data
                 throw;
             }
         }
-        //public List<string> GetRoads()
-        //{
-        //    try
-        //    {
-        //        string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=su; Database=NS_Locations;";
-        //        NpgsqlConnection connection = new NpgsqlConnection(connstring);
-        //        connection.Open();
-        //        NpgsqlCommand command = new NpgsqlCommand("SELECT * FROM public.putevi", connection);
-        //        NpgsqlDataReader dataReader = command.ExecuteReader();
-        //        for (int i = 0; dataReader.Read(); i++)
-        //        {
-        //            locations.Add(dataReader[0].ToString() + "," + dataReader[1].ToString() + "," + dataReader[2].ToString() + "\r\n");
-        //        }
-        //        connection.Close();
-        //        return locations;
-        //    }
-        //    catch (Exception msg)
-        //    {
 
-        //        throw;
-        //    }
-        //}
-        public List<properties> GetRivers()
+        public List<features> GetLocationsByCategory(string category)
         {
-            var rivers = new List<properties>();
+            var locations = new List<features>();
+            var categoryFilter = category;//.Replace(" ","_");
             try
             {
-                string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=su; Database=NS_Locations;";
+
                 NpgsqlConnection connection = new NpgsqlConnection(connstring);  //biblioteka za rad sa Postgis bazama podataka
                 connection.Open();
-                NpgsqlCommand command = new NpgsqlCommand("SELECT fclass, name, ST_AsText(geom) AS geom FROM public.reke", connection);
-                
+                NpgsqlCommand command = new NpgsqlCommand("SELECT  fclass,name, ST_AsText(geom) as geom, gid, address FROM public.lokacije where fclass ='"+ categoryFilter + "'", connection);
+
+                var decimalStyle = CultureInfo.CurrentCulture;
+
                 NpgsqlDataReader dataReader = command.ExecuteReader();
                 for (int i = 0; dataReader.Read(); i++)
                 {
-                    rivers.Add(new properties() { fclass = dataReader[0].ToString(), name = dataReader[1].ToString() ?? null, geometry = new geometry() { type = "point", coordinates = dataReader[2].ToString().Replace("MULTIPOLYGON(((", "[").Replace(")))", "]").Replace(",","],[").Replace(" ", ",") } });
+                    var coordinatesString = dataReader[2].ToString().Replace("MULTIPOINT(", "").Replace(")", "");
+                    var a = coordinatesString.Substring(0, coordinatesString.IndexOf(" "));
+                    var b = coordinatesString.Substring(coordinatesString.IndexOf(" ") + 1);
+                    var arr = new decimal[] { Decimal.Parse(a, decimalStyle), Decimal.Parse(b, decimalStyle) };
+                    //var r = "[" +  + "]";
+                    locations.Add(new features() { type = "Feature", properties = new properties() { fclass = dataReader[0].ToString(), name = dataReader[1].ToString() ?? null, gid = Convert.ToInt32(dataReader[3]), address = dataReader[4].ToString() ?? null }, geometry = new geometry() { type = "Point", coordinates = arr } });
 
                 }
                 connection.Close();
-                return rivers;
+                return locations;
+            }
+            catch (Exception msg)
+            {
+
+                throw;
+            }
+        }
+
+        public void UpdateFeature(string fclass, string name, string address, int gid)
+        {
+            try
+            {
+
+                NpgsqlConnection connection = new NpgsqlConnection(connstring);  //biblioteka za rad sa Postgis bazama podataka
+                connection.Open();
+                NpgsqlCommand command = new NpgsqlCommand("Update public.lokacije set fclass='"+ fclass +"', name ='"+ name + "', address ='"+ address + "' where gid ="+ gid.ToString(), connection);
+                //INSERT INTO public.lokacije(gid, osm_id, code, fclass, name, geom, address) VALUES(?, ?, ?, ?, ?, ?, ?);
+                var response  = command.ExecuteNonQuery();
+                connection.Close();
+              
             }
             catch (Exception msg)
             {
@@ -88,5 +128,28 @@ namespace GeoBaza.Data
             }
 
         }
+
+        public void AddFeature(string fclass, string name, string address, decimal longt, decimal lat)
+        {
+            try
+            {
+
+                NpgsqlConnection connection = new NpgsqlConnection(connstring);  //biblioteka za rad sa Postgis bazama podataka
+                connection.Open();
+                NpgsqlCommand command = new NpgsqlCommand("Insert into public.lokacije(gid, osm_id, code, fclass, name, geom, address) VALUES( (select max(gid)+1 from public.lokacije), null, null,'"+fclass+"','"+name+ "',ST_GeomFromText('MULTIPOINT(" + longt.ToString()+" "+lat.ToString()+")', 4326),'" + address+"') ",connection);
+                
+                var response = command.ExecuteNonQuery();
+                connection.Close();
+
+            }
+            catch (Exception msg)
+            {
+
+                throw;
+            }
+
+        }
+
+
     }
 }

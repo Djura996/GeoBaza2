@@ -13,18 +13,52 @@
     }
 
     #info {
-        width: 800px;
+        width: 200px;
         height: 200px;
     }
 </style>
 
 <link rel="stylesheet" href="~/Scripts/ol.css" type="text/css" />
 <script src="~/Scripts/jquery-3.3.1.min.js"></script>
-<script src="~/Scripts/ol.js"></script>
+<script src="~/Scripts/ol-debug.js"></script>
 <script src="~/Scripts/LoadMap.js"></script>
 
 
-<h1>Mapa</h1>
+<h1>Novi Sad</h1>
 
-<div id="map"></div>
-<div id="info"></div>
+<h3>Filtriraj po kategoriji: </h3> @Html.DropDownList("Categories",new SelectList(Model.categories), "Select category" ,new { @onchange = "getLocationsByCategory(this.value)" })
+<br />
+
+<div id="map" style="float:left"></div>
+
+<br />
+
+<div id="info" style="float:right" hidden>
+    @using (Html.BeginForm("SaveLocation", "Home", FormMethod.Post))
+    {
+        <fieldset>
+            @Html.LabelFor(model => model.features.properties.name)
+            <br />
+            @Html.TextBoxFor(model => model.features.properties.name)
+            <br />
+            @Html.LabelFor(model => model.features.properties.fclass)
+            <br />
+            @Html.DropDownListFor(model => model.features.properties.fclass, new SelectList(Model.categories))
+            <br />
+            @Html.LabelFor(model => model.features.properties.address)
+            <br />
+            @Html.TextBoxFor(model => model.features.properties.address)
+            <br />
+
+
+            @Html.HiddenFor(model => model.features.geometry.coordinates[0])
+            @Html.HiddenFor(model => model.features.geometry.coordinates[1])
+            @Html.HiddenFor(model => model.features.geometry.type)
+            @Html.HiddenFor(model => model.features.properties.gid, new { data_val = "false" })
+
+
+        </fieldset>
+        <input type="submit" value="Snimi lokaciju" />
+
+    }
+</div>

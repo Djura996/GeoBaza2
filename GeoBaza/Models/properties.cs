@@ -8,19 +8,22 @@ namespace GeoBaza.Models
     public class features
     {
         public string type { get; set; }
-        public List<properties> properties { get; set; }
+        public properties properties { get; set; }
+        public geometry geometry { get; set; }
     }
 
     public class properties
     {
         public string fclass { get; set; }
         public string name { get; set; }
-        public geometry geometry { get; set; }
+        public int gid { get; set; }
+        public string address { get; set; }
+
     }
 
     public class geometry
     { public string type { get; set; }
-      public string coordinates { get; set; }
+      public decimal[] coordinates { get; set; }
 
     }
 

@@ -15,39 +15,49 @@ namespace GeoBaza.Controllers
        
         public ActionResult Index()
         {
-            
-            return View();
+            DataManipulation data = new DataManipulation();
+            var categories = data.getCategories();
+
+            var model = new LayersModel() { categories = categories};
+            return View( model );
         }
+
         [HttpGet]
         public ActionResult GetJsonLocation()
         {
             DataManipulation data = new DataManipulation();
-            var locations = data.GetLocations();
-            var features1 = new features() { type = "feature", properties = locations };
-
+            var locations = data.GetLocations(); // GET LIST OF FEATURES
+           
             var complexJson = new {
                 type = "FeatureCollection",
                 crs = new crs(),
-                features = features1
+                features = locations
 
             };
             var a = Json(complexJson, JsonRequestBehavior.AllowGet);
 
-            return a;
+            return   a;
 
         }
+
         [HttpGet]
-        public ActionResult GetJsonRivers()
+        public ActionResult GetJsonLocationByCategory(string category)
         {
             DataManipulation data = new DataManipulation();
-            var rivers = data.GetRivers();
-            var features1 = new features() { type = "feature", properties = rivers };
-
+            var locations = new List<features>();
+            if (category != string.Empty)
+            {
+                locations = data.GetLocationsByCategory(category); // GET LIST OF FEATURES
+            }
+            else
+            {
+                locations = data.GetLocations();
+            }
             var complexJson = new
             {
                 type = "FeatureCollection",
                 crs = new crs(),
-                features = features1
+                features = locations
 
             };
             var a = Json(complexJson, JsonRequestBehavior.AllowGet);
@@ -55,6 +65,23 @@ namespace GeoBaza.Controllers
             return a;
 
         }
+
+        [HttpPost]
+        public ActionResult SaveLocation(LayersModel model) {
+
+            DataManipulation data = new DataManipulation();
+            if (model.features.properties.gid != 0)
+            {
+                data.UpdateFeature(model.features.properties.fclass, model.features.properties.name, model.features.properties.address, model.features.properties.gid);
+            }
+            else
+            {
+                data.AddFeature(model.features.properties.fclass, model.features.properties.name, model.features.properties.address,model.features.geometry.coordinates[0], model.features.geometry.coordinates[1]);
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
 
     }

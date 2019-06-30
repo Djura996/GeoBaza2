@@ -7,8 +7,9 @@ namespace GeoBaza.Models
 {
     public class LayersModel
     {
-        public string locations { get; set; }
-        public string rivers { get; set;}
-        public string roads { get; set; }
+        public List <string> categories { get; set; }
+
+        public features features { get; set; }
+        
     }
 }
