@@ -8,14 +8,16 @@
 <style>
 
     #map {
-        width: 800px;
-        height: 600px;
+        width: 910px;
+        height: 650px;
     }
 
     #info {
         width: 200px;
         height: 200px;
     }
+
+body { background-image: url("https://iutam.org/wp-content/uploads/2016/10/NoviSad.jpg"); }
 </style>
 
 <link rel="stylesheet" href="~/Scripts/ol.css" type="text/css" />
@@ -24,9 +26,9 @@
 <script src="~/Scripts/LoadMap.js"></script>
 
 
-<h1>Novi Sad</h1>
+<h1 style="color:white">Novi Sad</h1>
 
-<h3>Filtriraj po kategoriji: </h3> @Html.DropDownList("Categories",new SelectList(Model.categories), "Select category" ,new { @onchange = "getLocationsByCategory(this.value)" })
+<h3 style="color:white">Filtriraj po kategoriji: </h3> @Html.DropDownList("Categories",new SelectList(Model.categories), "Select category" ,new { @onchange = "getLocationsByCategory(this.value)" })
 <br />
 
 <div id="map" style="float:left"></div>

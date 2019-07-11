@@ -41,15 +41,20 @@ function loadMaps(data) {
      
     var lokacijeStyle = new ol.style.Style({
         image: new ol.style.RegularShape({
-            fill: new ol.style.Fill({ color: 'blue' }),
-            stroke: new ol.style.Stroke({ color: 'black', width: 1 }),
-            points: 4,
+            fill: new ol.style.Fill({ color: 'green' }),
+            stroke: new ol.style.Stroke({ color: 'green', width: 1 }),
+            points: 3,
             radius: 10,
-            angle: Math.PI / 4
+            rotation: Math.PI / 4,
+            angle: 0
         }),
         text: new ol.style.Text({
             font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
             placement: 'point',
+            textAlign: 'left',
+            textBaseline: 'top',
+            offsetX: -30,
+            offsetY: 8,
             fill: new ol.style.Fill({
                 color: 'black'
             })
@@ -67,8 +72,13 @@ function loadMaps(data) {
         text: new ol.style.Text({
             font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
             placement: 'point',
+            textAlign: 'left',
+            textBaseline: 'top',
+            offsetX: -30,
+            offsetY: 8,
+            angle: Math.PI / 4,            //textBaseline: 'bottom',
             fill: new ol.style.Fill({
-                color: 'black'
+                color: 'black' 
             })
         })
     });
@@ -133,9 +143,22 @@ function loadMaps(data) {
 
     // ovo je kad kliknemo na mapu bilo gde
     map.on("click", function (ev) {
-
+      
         var latLong = ol.proj.transform(ev.coordinate, 'EPSG:4326', 'EPSG:4326');
-       
+
+
+             //var thing = new ol.geom.Polygon([[
+        //    latLong
+        //]]);
+        //var featurething = new ol.Feature({
+        //    name: "Novo",
+        //    geometry: thing,
+        //    style: lokacijeSelectStyle
+        //});
+        //lokacijeSource.addFeature(featurething);
+
+        
+
         $("#info").removeAttr("hidden");
         $("#features_geometry_coordinates_0_").val(latLong[0]);
         $("#features_geometry_coordinates_1_").val(latLong[1]);
