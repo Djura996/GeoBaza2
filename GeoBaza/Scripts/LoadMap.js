@@ -1,19 +1,21 @@
 ﻿$(document).ready(function () {
-   
+// ajax poziv ka bazi koji kupi podatke pri pokretanju stranice   
         $.ajax({
 
         type: "GET",
 
-        url: "Home/GetJsonLocation", 
+        url: "Home/GetJsonLocation", //home controler metod get json location
 
        success: loadMaps
 
-   });
+    });
+
+    $('hr').remove();
  
 
        
 });
-
+// vadi iz baze filtrirane podatke i vraca ih u json formatu
 function getLocationsByCategory(category) {
 
     $.ajax({
@@ -31,14 +33,15 @@ function getLocationsByCategory(category) {
 }
 
 
-
+// ucitavanje mapa
+// data sadrzi json sa podacima iz baze
 function loadMaps(data) {
 
     // uklonili smo prethodne layere mape da bi ucitali postojeci.
     $("#map").empty();
-    var lokacije = data;
+    var lokacije = data; 
    
-     
+    //trouglici na mapi 
     var lokacijeStyle = new ol.style.Style({
         image: new ol.style.RegularShape({
             fill: new ol.style.Fill({ color: 'green' }),
@@ -60,7 +63,7 @@ function loadMaps(data) {
             })
         })
     });
-
+    //za troukao koji je selektovan
     var lokacijeSelectStyle = new ol.style.Style({
         image: new ol.style.RegularShape({
             fill: new ol.style.Fill({ color: 'red' }),
@@ -69,6 +72,7 @@ function loadMaps(data) {
             radius: 10,
             angle: Math.PI / 4
         }),
+        //prikaz texa na mapi
         text: new ol.style.Text({
             font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
             placement: 'point',
@@ -82,14 +86,14 @@ function loadMaps(data) {
             })
         })
     });
-
+    // cita featue koje je dobio preko json iz baze
     var lokacijeSource = new ol.source.Vector({
         features: (new ol.format.GeoJSON({
             dataProjection: 'EPSG:4326',
             featureProjection: 'EPSG:4326'
         })).readFeatures(lokacije)
     });
-
+    // prikaz lokacija na mapi
     var lokacijeLayer = new ol.layer.Vector({
         id: 'lokacije',
         source: lokacijeSource,
@@ -98,7 +102,7 @@ function loadMaps(data) {
             return lokacijeStyle;
         }
     });
-
+    //selekcija postojeceg objekta
     var selectFeature = new ol.interaction.Select({
         condition: ol.events.condition.singleClick,
         toggleCondition: ol.events.condition.shiftKeyOnly,
@@ -108,7 +112,7 @@ function loadMaps(data) {
         style: lokacijeSelectStyle
     });
 
-
+    //prikaz mape sa osm sorsom
     var map = new ol.Map({
         target: 'map',
         layers: [
@@ -141,23 +145,12 @@ function loadMaps(data) {
 
     });
 
-    // ovo je kad kliknemo na mapu bilo gde
+    // ovo je kad kliknemo na mapu bilo gde dodamo novu lokaciju uzima i kordinate
     map.on("click", function (ev) {
       
-        var latLong = ol.proj.transform(ev.coordinate, 'EPSG:4326', 'EPSG:4326');
+        var latLong = ol.proj.transform(ev.coordinate, 'EPSG:4326', 'EPSG:4326');//preuzimanje koordinata
 
-
-             //var thing = new ol.geom.Polygon([[
-        //    latLong
-        //]]);
-        //var featurething = new ol.Feature({
-        //    name: "Novo",
-        //    geometry: thing,
-        //    style: lokacijeSelectStyle
-        //});
-        //lokacijeSource.addFeature(featurething);
-
-        
+      
 
         $("#info").removeAttr("hidden");
         $("#features_geometry_coordinates_0_").val(latLong[0]);

@@ -11,7 +11,7 @@ namespace GeoBaza.Data
 {
     public class DataManipulation
     {
-       public string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=su; Database=NS_Locations;";
+       public string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=su; Database=NS_Locations;";// konekcija za bazu
 
         List<string> roads = new List<string>();
 
@@ -23,9 +23,9 @@ namespace GeoBaza.Data
                 NpgsqlConnection connection = new NpgsqlConnection(connstring);  //biblioteka za rad sa Postgis bazama podataka
             connection.Open();
 
-            NpgsqlCommand command = new NpgsqlCommand("SELECT  distinct(fclass) FROM public.lokacije order by fclass asc", connection);
+            NpgsqlCommand command = new NpgsqlCommand("SELECT  distinct(fclass) FROM public.lokacije order by fclass asc", connection); //deo biblioteke
             NpgsqlDataReader dataReader = command.ExecuteReader();
-            for (int i = 0; dataReader.Read(); i++)
+            for (int i = 0; dataReader.Read(); i++) // prolazimo kroz listu svih lokacija i stavljamo i ih u listu kategorija
             {
                     categories.Add(dataReader[0].ToString());//.Replace("_", " "));
             }
@@ -41,7 +41,7 @@ namespace GeoBaza.Data
 
         }
 
-        public List<features> GetLocations()
+        public List<features> GetLocations() // uzima sve lokacije
         {
             var locations = new List<features>();
             try
@@ -54,7 +54,7 @@ namespace GeoBaza.Data
                 var decimalStyle = CultureInfo.CurrentCulture;
 
                 NpgsqlDataReader dataReader = command.ExecuteReader();
-                for (int i = 0; dataReader.Read(); i++)
+                for (int i = 0; dataReader.Read(); i++) //svaku kordinatu iz baze mapiramo u objekat features koji kasnije pretvaramo u json 
                 {
                     var coordinatesString = dataReader[2].ToString().Replace("MULTIPOINT(", "").Replace(")", "");
                     var a = coordinatesString.Substring(0, coordinatesString.IndexOf(" "));

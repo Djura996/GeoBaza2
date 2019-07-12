@@ -17,7 +17,19 @@
         height: 200px;
     }
 
-body { background-image: url("https://iutam.org/wp-content/uploads/2016/10/NoviSad.jpg"); }
+    img {
+        vertical-align: 25%;
+        float: right;
+        margin-top: -50px;
+        margin-right: 35px;
+    }
+    #features_properties_fclass {
+        width:174px !important
+    }
+
+    body {
+        background-image: url("https://iutam.org/wp-content/uploads/2016/10/NoviSad.jpg");
+    }
 </style>
 
 <link rel="stylesheet" href="~/Scripts/ol.css" type="text/css" />
@@ -28,26 +40,28 @@ body { background-image: url("https://iutam.org/wp-content/uploads/2016/10/NoviS
 
 <h1 style="color:white">Novi Sad</h1>
 
-<h3 style="color:white">Filtriraj po kategoriji: </h3> @Html.DropDownList("Categories",new SelectList(Model.categories), "Select category" ,new { @onchange = "getLocationsByCategory(this.value)" })
+<h3 style="color:white">Filtriraj po kategoriji: </h3> @Html.DropDownList("Categories",new SelectList(Model.categories), "Izaberite kategoriju" ,new { @onchange = "getLocationsByCategory(this.value)" })
+<br />
+<br />
 <br />
 
 <div id="map" style="float:left"></div>
 
 <br />
-
+<img src="https://seeklogo.com/images/F/Fakultet_tehnickih_nauka_-_Novi_Sad-logo-C11C616640-seeklogo.com.png" alt="Logo FTN" height="164" width="164">
 <div id="info" style="float:right" hidden>
     @using (Html.BeginForm("SaveLocation", "Home", FormMethod.Post))
     {
         <fieldset>
-            @Html.LabelFor(model => model.features.properties.name)
+            @Html.LabelFor(model => model.features.properties.name, "Naziv objekta")
             <br />
             @Html.TextBoxFor(model => model.features.properties.name)
             <br />
-            @Html.LabelFor(model => model.features.properties.fclass)
+            @Html.LabelFor(model => model.features.properties.fclass, "Kategorija")
             <br />
             @Html.DropDownListFor(model => model.features.properties.fclass, new SelectList(Model.categories))
             <br />
-            @Html.LabelFor(model => model.features.properties.address)
+            @Html.LabelFor(model => model.features.properties.address, "Adresa")
             <br />
             @Html.TextBoxFor(model => model.features.properties.address)
             <br />

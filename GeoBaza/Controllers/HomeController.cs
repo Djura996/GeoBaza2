@@ -13,7 +13,7 @@ namespace GeoBaza.Controllers
     public class HomeController : Controller
     {
        
-        public ActionResult Index()
+        public ActionResult Index() //ucitavanje stranice, pokupi kategorije, smesti ih u model i posalje u View
         {
             DataManipulation data = new DataManipulation();
             var categories = data.getCategories();
@@ -23,7 +23,7 @@ namespace GeoBaza.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetJsonLocation()
+        public ActionResult GetJsonLocation() // metod koji kupi sve lokacije iz baze i mapira ga u json file
         {
             DataManipulation data = new DataManipulation();
             var locations = data.GetLocations(); // GET LIST OF FEATURES
@@ -36,12 +36,12 @@ namespace GeoBaza.Controllers
             };
             var a = Json(complexJson, JsonRequestBehavior.AllowGet);
 
-            return   a;
+            return   a;// vraca json format za javascript
 
         }
 
         [HttpGet]
-        public ActionResult GetJsonLocationByCategory(string category)
+        public ActionResult GetJsonLocationByCategory(string category)//kupi lokacije po kategorijama iz baze i vraca u json
         {
             DataManipulation data = new DataManipulation();
             var locations = new List<features>();
@@ -67,19 +67,19 @@ namespace GeoBaza.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveLocation(LayersModel model) {
+        public ActionResult SaveLocation(LayersModel model) { // metod za snimanje lokacija
 
             DataManipulation data = new DataManipulation();
-            if (model.features.properties.gid != 0)
+            if (model.features.properties.gid != 0) // update
             {
                 data.UpdateFeature(model.features.properties.fclass, model.features.properties.name, model.features.properties.address, model.features.properties.gid);
             }
-            else
+            else // za novi element
             {
                 data.AddFeature(model.features.properties.fclass, model.features.properties.name, model.features.properties.address,model.features.geometry.coordinates[0], model.features.geometry.coordinates[1]);
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index"); //refresh, pozove prvu funkciju
         }
 
 
